@@ -1,6 +1,7 @@
 package markov_chain.model;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 
 public class StateTransitionDiagram<T> {
@@ -31,6 +32,16 @@ public class StateTransitionDiagram<T> {
 		}
 		sb.append("}");
 		return sb.toString();
+	}
+	
+	public StateTransitionDiagram<T> removeEndGuards(){
+		StateTransitionDiagram<T> std = new StateTransitionDiagram<T>();
+		
+		for ( Entry<T, State<T>> entry : states.entrySet() ){
+			std.states.put(entry.getKey(), entry.getValue().removeGuards(guard.value));
+		}
+		
+		return std;
 	}
 
 }

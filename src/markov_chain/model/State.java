@@ -45,4 +45,23 @@ class State<T> {
 		}
 		return sb.toString();
 	}
+
+	public State<T> removeGuards(T guard) {
+		State<T> state = new State<T>(value);
+		
+		for ( Entry<T, Integer> entry : transitions.entrySet() ){
+			if ( entry.getKey() != guard ){
+				state.transitions.put(entry.getKey(), entry.getValue());
+				state.transitionCount += entry.getValue();
+			}
+		}
+		
+		return state;
+	}
 }
+
+
+
+
+
+
