@@ -20,10 +20,14 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import markov_chain.model.Generator;
+import markov_chain.model.StateTransitionDiagram;
+import markov_chain.model.Trainer;
+
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
 
-import markov_chain.model.MarkovChain;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class markov {
 	
@@ -33,9 +37,17 @@ public class markov {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		hack: eclipse don't support IO redirection worth a shit
+//		try {
+//			System.setIn(new FileInputStream("./testfile"));
+//		} catch (FileNotFoundException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 
 		boolean graphMode = false;
-		boolean endNode = false;
+		boolean endNode = true;
 		
 		int count = -1;
 
@@ -45,7 +57,7 @@ public class markov {
 
 		for (String s : args) {
 			
-			if ( !s.matches("^-[veg]*(c[0-9]*)?$")){
+			if ( !s.matches("^-[vegj]*(c[0-9]*)?$")){
 				System.out.println("invalid argument");
 				return;
 			}
@@ -69,14 +81,14 @@ public class markov {
 
 		}
 
-		MarkovChain<Character> markovChain = new MarkovChain<Character>(endNode);
+		Trainer<Character> trainer = new Trainer<Character>();
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
 		try {
 			String s = br.readLine();
 			while (s != null) {
-				markovChain.train(string2List(s));
+				trainer.train(string2List(s));
 				n++;
 				sumOfSqr += s.length() * s.length();
 				sum += s.length();
@@ -87,17 +99,18 @@ public class markov {
 				return;
 			}
 			if (graphMode) {
-				System.out.println(markovChain.toString());
+				System.out.println(trainer.getTransitionDiagram().toString());
 				return;
 			}
+			Generator<Character> generator = new Generator<Character>(trainer.getTransitionDiagram());
 			if (endNode) {
 				if (count >= 0) {
 					for (int c = 0; c < count; c++) {
-						output(markovChain);
+						output(generator);
 					}
 				} else {
 					while (true) {
-						output(markovChain);
+						output(generator);
 					}
 				}
 			} else {
@@ -110,11 +123,11 @@ public class markov {
 				try {
 					if (count >= 0) {
 						for (int c = 0; c < count; c++) {
-							output(markovChain, dist);
+							output(generator, dist);
 						}
 					} else {
 						while (true) {
-							output(markovChain, dist);
+							output(generator, dist);
 						}
 					}
 				} catch (MathException e) {
@@ -131,18 +144,19 @@ public class markov {
 
 	private static void log(String string) {
 		if ( verbose ){
-			System.out.println(string);
+			System.err.println(string);
 		}
 	}
 
-	private static void output(MarkovChain<Character> markovChain) {
-		String item = list2String(markovChain.generate());
+	private static void output(Generator<Character> generator) {
+		String item = list2String(generator.generate());
 		System.out.println(item);
 	}
 
-	private static void output(MarkovChain<Character> markovChain, NormalDistributionImpl dist) throws MathException {
-		String item = list2String(markovChain.generate(dist));
-		System.out.println(item);
+	private static void output(Generator<Character> generator, NormalDistributionImpl dist) throws MathException {
+		throw new NotImplementedException();
+//		String item = list2String(generator.generate(dist));
+//		System.out.println(item);
 	}
 
 	private static List<Character> string2List(String s) {
