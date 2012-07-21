@@ -27,26 +27,29 @@ import markov_chain.model.Trainer;
 
 import org.apache.commons.math.distribution.NormalDistributionImpl;
 
+import com.google.gson.Gson;
+
 public class markov {
-	
+
 	static boolean verbose = false;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
-//		hack: eclipse don't support IO redirection worth a shit
-//		try {
-//			System.setIn(new FileInputStream("./testfile"));
-//		} catch (FileNotFoundException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+
+		// hack: eclipse don't support IO redirection worth a shit
+		// try {
+		// System.setIn(new FileInputStream("./testfile"));
+		// } catch (FileNotFoundException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
 
 		boolean graphMode = false;
+		boolean jsonMode = false;
 		boolean endNode = false;
-		
+
 		int count = -1;
 
 		long n = 0;
@@ -54,12 +57,12 @@ public class markov {
 		long sum = 0;
 
 		for (String s : args) {
-			
-			if ( !s.matches("^-[vegj]*(c[0-9]*)?$")){
+
+			if (!s.matches("^-[vegj]*(c[0-9]*)?$")) {
 				System.out.println("invalid argument");
 				return;
 			}
-			
+
 			if (s.matches("^-.*v.*")) {
 				verbose = true;
 				log("verbose mode");
@@ -67,6 +70,10 @@ public class markov {
 			if (s.matches("^-.*g.*")) {
 				graphMode = true;
 				log("graph mode");
+			}
+			if (s.matches("^-.*j.*")) {
+				jsonMode = true;
+				log("json mode");
 			}
 			if (s.matches("^-.*e.*")) {
 				endNode = true;
@@ -92,23 +99,35 @@ public class markov {
 				sum += s.length();
 				s = br.readLine();
 			}
-			if ( n == 0 ){
-				System.err.println("Invalid corpus: At least one sample is required, two to make it interesting");
+			if (n == 0) {
+				System.err
+						.println("Invalid corpus: At least one sample is required, two to make it interesting");
 				return;
 			}
 			if (graphMode) {
 				System.out.println(trainer.getTransitionDiagram().toString());
 				return;
 			}
-			
+			if (jsonMode) {
+				if (endNode) {
+					System.out.println(new Gson().toJson(trainer.getTransitionDiagram()));
+				} else {
+					System.out.println(new Gson().toJson(trainer.getTransitionDiagram().removeEndGuards()));
+				}
+				return;
+			}
+
 			Generator<Character> generator;
 			if (endNode) {
-				generator = new EndTagGenerator<Character>(trainer.getTransitionDiagram());
+				generator = new EndTagGenerator<Character>(
+						trainer.getTransitionDiagram());
 			} else {
-				double sd = ((double) sumOfSqr - (double) (sum * sum) / (double) n) / (double) (n - 1);
+				double sd = ((double) sumOfSqr - (double) (sum * sum)
+						/ (double) n)
+						/ (double) (n - 1);
 				double mean = (double) sum / (double) n;
 				log(String.format("mean: %.4f sd: %.4f", mean, sd));
-				NormalDistributionImpl dist = new NormalDistributionImpl(mean, sd);
+				NormalDistributionImpl dist = new NormalDistributionImpl(mean,sd);
 				generator = new NormalizedGenerator<Character>(trainer.getTransitionDiagram().removeEndGuards(), dist);
 			}
 			if (count >= 0) {
@@ -128,7 +147,7 @@ public class markov {
 	}
 
 	private static void log(String string) {
-		if ( verbose ){
+		if (verbose) {
 			System.err.println(string);
 		}
 	}
