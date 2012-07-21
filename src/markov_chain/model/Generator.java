@@ -32,10 +32,10 @@ public class Generator<T> {
 		Random rand = new Random();
 		int count = rand.nextInt(state.transitionCount + 1);
 		State<T> nextState = null;
-		for (Entry<State<T>, Integer> entry : state.transitions.entrySet()) {
+		for (Entry<T, Integer> entry : state.transitions.entrySet()) {
 			count -= entry.getValue();
 			if (count <= 0) {
-				nextState = entry.getKey();
+				nextState = std.getState(entry.getKey());
 				break;
 			}
 		}

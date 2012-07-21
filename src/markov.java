@@ -15,13 +15,14 @@
  */
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
 import markov_chain.model.Generator;
-import markov_chain.model.StateTransitionDiagram;
 import markov_chain.model.Trainer;
 
 import org.apache.commons.math.MathException;
