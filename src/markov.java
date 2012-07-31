@@ -15,19 +15,27 @@
  */
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
+import markov_chain.gson.GsonStub;
+import markov_chain.gson.GsonStub.StateStub;
 import markov_chain.model.EndTagGenerator;
 import markov_chain.model.Generator;
 import markov_chain.model.NormalizedGenerator;
+import markov_chain.model.State;
+import markov_chain.model.StateTransitionDiagram;
 import markov_chain.model.Trainer;
 
 import org.apache.commons.math.distribution.NormalDistributionImpl;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class markov {
 
@@ -36,18 +44,20 @@ public class markov {
 	/**
 	 * @param args
 	 */
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 
 		// hack: eclipse don't support IO redirection worth a shit
-		// try {
-		// System.setIn(new FileInputStream("./testfile"));
-		// } catch (FileNotFoundException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// }
+//		try {
+//			System.setIn(new FileInputStream("./json"));
+//		} catch (FileNotFoundException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 
 		boolean graphMode = false;
 		boolean jsonMode = false;
+		boolean jsonRecoverMode = false;
 		boolean endNode = false;
 
 		int count = -1;
@@ -58,7 +68,7 @@ public class markov {
 
 		for (String s : args) {
 
-			if (!s.matches("^-[vegj]*(c[0-9]*)?$")) {
+			if (!s.matches("^-[vegjJ]*(c[0-9]*)?$")) {
 				System.out.println("invalid argument");
 				return;
 			}
@@ -75,6 +85,10 @@ public class markov {
 				jsonMode = true;
 				log("json mode");
 			}
+			if (s.matches("^-.*J.*")) {
+				jsonRecoverMode = true;
+				log("json recover mode");
+			}
 			if (s.matches("^-.*e.*")) {
 				endNode = true;
 				log("include end node");
@@ -86,49 +100,76 @@ public class markov {
 
 		}
 
-		Trainer<Character> trainer = new Trainer<Character>();
-
+		StateTransitionDiagram<Character> std;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
 		try {
-			String s = br.readLine();
-			while (s != null) {
-				trainer.train(string2List(s));
-				n++;
-				sumOfSqr += s.length() * s.length();
-				sum += s.length();
-				s = br.readLine();
-			}
-			if (n == 0) {
-				System.err
-						.println("Invalid corpus: At least one sample is required, two to make it interesting");
-				return;
+			if (!jsonRecoverMode) {
+				Trainer<Character> trainer = new Trainer<Character>();
+				String s = br.readLine();
+				while (s != null) {
+					trainer.train(string2List(s));
+					n++;
+					sumOfSqr += s.length() * s.length();
+					sum += s.length();
+					s = br.readLine();
+				}
+				if (n == 0) {
+					System.err
+							.println("Invalid corpus: At least one sample is required, two to make it interesting");
+					return;
+				}
+				std = trainer.getTransitionDiagram();
+			} else {
+				std = new StateTransitionDiagram<Character>();
+				GsonStub gstub = new Gson().fromJson(br, GsonStub.class );
+				
+				for( Entry<String, StateStub>  entry: gstub.states.entrySet() ){
+					State<Character> state;
+					if ( entry.getKey().equals("null") ){
+						state = std.getGuard();
+					} else {
+						state = std.getState(Character.valueOf(entry.getKey().charAt(0)));
+					}
+					for ( Entry<String, Integer> transitions : entry.getValue().transitions.entrySet() ){
+						State<Character> tranny;
+						if ( transitions.getKey().equals("null") ){
+							tranny = std.getGuard();
+						} else {
+							tranny = std.getState(Character.valueOf(transitions.getKey().charAt(0)));
+						}
+						
+						state.addTransition(tranny.getValue(), transitions.getValue());
+					}
+				}
 			}
 			if (graphMode) {
-				System.out.println(trainer.getTransitionDiagram().toString());
+				System.out.println(std.toString());
 				return;
 			}
 			if (jsonMode) {
+				Gson gson = new GsonBuilder()
+						.excludeFieldsWithoutExposeAnnotation().create();
+
 				if (endNode) {
-					System.out.println(new Gson().toJson(trainer.getTransitionDiagram()));
+					System.out.println(gson.toJson(std));
 				} else {
-					System.out.println(new Gson().toJson(trainer.getTransitionDiagram().removeEndGuards()));
+					System.out.println(gson.toJson(std.removeEndGuards()));
 				}
 				return;
 			}
 
 			Generator<Character> generator;
 			if (endNode) {
-				generator = new EndTagGenerator<Character>(
-						trainer.getTransitionDiagram());
+				generator = new EndTagGenerator<Character>(std);
 			} else {
-				double sd = ((double) sumOfSqr - (double) (sum * sum)
-						/ (double) n)
-						/ (double) (n - 1);
+				double sd = ((double) sumOfSqr - (double) (sum * sum) / (double) n) / (double) (n - 1);
 				double mean = (double) sum / (double) n;
 				log(String.format("mean: %.4f sd: %.4f", mean, sd));
-				NormalDistributionImpl dist = new NormalDistributionImpl(mean,sd);
-				generator = new NormalizedGenerator<Character>(trainer.getTransitionDiagram().removeEndGuards(), dist);
+				NormalDistributionImpl dist = new NormalDistributionImpl(mean,
+						sd);
+				generator = new NormalizedGenerator<Character>(
+						std.removeEndGuards(), dist);
 			}
 			if (count >= 0) {
 				for (int c = 0; c < count; c++) {

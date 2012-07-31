@@ -19,9 +19,12 @@ package markov_chain.model;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import com.google.gson.annotations.Expose;
+
 
 public class StateTransitionDiagram<T> {
 
+	@Expose
 	private HashMap<T, State<T>> states = new HashMap<T, State<T>>();
 
 	private State<T> guard = getState(null);
@@ -54,10 +57,12 @@ public class StateTransitionDiagram<T> {
 		StateTransitionDiagram<T> std = new StateTransitionDiagram<T>();
 		
 		for ( Entry<T, State<T>> entry : states.entrySet() ){
-			std.states.put(entry.getKey(), entry.getValue().removeGuards(guard.value));
+			std.states.put(entry.getKey(), entry.getValue().removeGuards(guard.getValue()));
 		}
 		
 		return std;
 	}
+
+	
 
 }

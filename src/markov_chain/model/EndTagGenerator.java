@@ -39,7 +39,7 @@ public class EndTagGenerator<T> implements Generator<T>{
 			result = new LinkedList<T>();
 		} else {
 			result = internalGenerate(chooseNextState(state));
-			result.add(0, state.value);
+			result.add(0, state.getValue());
 		}
 		return result;
 	}

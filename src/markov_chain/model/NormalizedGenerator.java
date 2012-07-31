@@ -48,7 +48,7 @@ public class NormalizedGenerator<T> implements Generator<T>{
 			result = new LinkedList<T>();
 		} else {
 			result = internalGenerate(chooseNextState(state, position+1),  position+1);
-			result.add(0, state.value);
+			result.add(0, state.getValue());
 		}
 		return result;
 	}

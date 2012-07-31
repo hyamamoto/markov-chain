@@ -33,10 +33,10 @@ public class Trainer<T> {
 	private void internalTrain(List<T> sequence, State<T> state) {
 		if (sequence.size() > 0) {
 			State<T> nextState = std.getState(sequence.get(0));
-			state.addTransition(nextState.value);
+			state.addTransition(nextState.getValue());
 			internalTrain(sequence.subList(1, sequence.size()), nextState);
 		} else {
-			state.addTransition(std.getGuard().value);
+			state.addTransition(std.getGuard().getValue());
 		}
 	}
 

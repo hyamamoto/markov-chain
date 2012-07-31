@@ -19,12 +19,15 @@ package markov_chain.model;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-class State<T> {
+import com.google.gson.annotations.Expose;
 
-	T value;
+public class State<T> {
+
+	private T value;
 	
 	public int transitionCount = 0;
 	
+	@Expose
 	public HashMap<T, Integer> transitions = new HashMap<T, Integer>();
 
 	State(T value) {
@@ -38,6 +41,12 @@ class State<T> {
 		}
 		transitions.put(state, Integer.valueOf(i + 1));
 		transitionCount++;
+	}
+	
+	public void addTransition(T state, int count) {
+		Integer i = Integer.valueOf(count);
+		transitions.put(state, i);
+		transitionCount += count;
 	}
 
 	@Override
@@ -73,6 +82,10 @@ class State<T> {
 		}
 		
 		return state;
+	}
+	
+	public T getValue() {
+		return value;
 	}
 }
 
