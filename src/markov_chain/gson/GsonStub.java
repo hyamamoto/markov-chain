@@ -18,13 +18,30 @@ package markov_chain.gson;
 
 import java.util.HashMap;
 
+import com.google.gson.annotations.Expose;
+
 public class GsonStub {
-
+	
 	public static class StateStub {
+		@Expose
 		public HashMap<String, Integer> transitions;
-
+	}
+	
+	public static class Meta {
+		@Expose
+		public long n = 0;
+		
+		@Expose
+		public long sumOfSqr = 0;
+		
+		@Expose
+		public long sum = 0;
 	}
 
+	@Expose
 	public HashMap<String, StateStub> states;
+	
+	@Expose
+	public Meta meta;
 
 }

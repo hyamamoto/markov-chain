@@ -15,6 +15,8 @@
  */
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import markov_chain.gson.GsonStub;
+import markov_chain.gson.GsonStub.Meta;
 import markov_chain.gson.GsonStub.StateStub;
 import markov_chain.model.EndTagGenerator;
 import markov_chain.model.Generator;
@@ -45,12 +48,12 @@ public class markov {
 	public static void main(String[] args) {
 
 		// hack: eclipse don't support IO redirection worth a shit
-		// try {
-		// System.setIn(new FileInputStream("./json"));
-		// } catch (FileNotFoundException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// }
+		 try {
+		 System.setIn(new FileInputStream("./json"));
+		 } catch (FileNotFoundException e1) {
+		 // TODO Auto-generated catch block
+		 e1.printStackTrace();
+		 }
 
 		boolean graphMode = false;
 		boolean jsonMode = false;
@@ -120,6 +123,9 @@ public class markov {
 			} else {
 				std = new StateTransitionDiagram<Character>();
 				GsonStub gstub = new Gson().fromJson(br, GsonStub.class);
+				n = gstub.meta.n;
+				sum = gstub.meta.sum;
+				sumOfSqr = gstub.meta.sumOfSqr;
 
 				for (Entry<String, StateStub> entry : gstub.states.entrySet()) {
 					State<Character> state;
@@ -152,11 +158,20 @@ public class markov {
 				Gson gson = new GsonBuilder()
 						.excludeFieldsWithoutExposeAnnotation().create();
 
+				String partialJson;
 				if (endNode) {
-					System.out.println(gson.toJson(std));
+					partialJson = gson.toJson(std);
 				} else {
-					System.out.println(gson.toJson(std.removeEndGuards()));
+					partialJson = gson.toJson(std.removeEndGuards());
 				}
+				GsonStub gstub = new Gson().fromJson(partialJson,
+						GsonStub.class);
+				gstub.meta = new Meta();
+				gstub.meta.n = n;
+				gstub.meta.sum = sum;
+				gstub.meta.sumOfSqr = sumOfSqr;
+
+				System.out.println(gson.toJson(gstub));
 				return;
 			}
 
