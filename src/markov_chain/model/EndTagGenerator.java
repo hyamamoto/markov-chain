@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 
-public class EndTagGenerator<T> implements Generator<T>{
-	
+public class EndTagGenerator<T> implements Generator<T> {
+
 	private StateTransitionDiagram<T> std;
 
-	public EndTagGenerator(StateTransitionDiagram<T> std ) {
+	public EndTagGenerator(StateTransitionDiagram<T> std) {
 		this.std = std;
 	}
-	
+
 	public List<T> generate() {
 		return internalGenerate(chooseNextState(std.getGuard()));
 	}
@@ -43,7 +43,7 @@ public class EndTagGenerator<T> implements Generator<T>{
 		}
 		return result;
 	}
-	
+
 	private State<T> chooseNextState(State<T> state) {
 		Random rand = new Random();
 		int count = rand.nextInt(state.transitionCount + 1);
@@ -57,5 +57,5 @@ public class EndTagGenerator<T> implements Generator<T>{
 		}
 		return nextState;
 	}
-	
+
 }

@@ -21,7 +21,6 @@ import java.util.Map.Entry;
 
 import com.google.gson.annotations.Expose;
 
-
 public class StateTransitionDiagram<T> {
 
 	@Expose
@@ -52,17 +51,16 @@ public class StateTransitionDiagram<T> {
 		sb.append("}");
 		return sb.toString();
 	}
-	
-	public StateTransitionDiagram<T> removeEndGuards(){
+
+	public StateTransitionDiagram<T> removeEndGuards() {
 		StateTransitionDiagram<T> std = new StateTransitionDiagram<T>();
-		
-		for ( Entry<T, State<T>> entry : states.entrySet() ){
-			std.states.put(entry.getKey(), entry.getValue().removeGuards(guard.getValue()));
+
+		for (Entry<T, State<T>> entry : states.entrySet()) {
+			std.states.put(entry.getKey(),
+					entry.getValue().removeGuards(guard.getValue()));
 		}
-		
+
 		return std;
 	}
-
-	
 
 }

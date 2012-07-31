@@ -15,8 +15,6 @@
  */
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
@@ -44,16 +42,15 @@ public class markov {
 	/**
 	 * @param args
 	 */
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 
 		// hack: eclipse don't support IO redirection worth a shit
-//		try {
-//			System.setIn(new FileInputStream("./json"));
-//		} catch (FileNotFoundException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		// try {
+		// System.setIn(new FileInputStream("./json"));
+		// } catch (FileNotFoundException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
 
 		boolean graphMode = false;
 		boolean jsonMode = false;
@@ -122,24 +119,28 @@ public class markov {
 				std = trainer.getTransitionDiagram();
 			} else {
 				std = new StateTransitionDiagram<Character>();
-				GsonStub gstub = new Gson().fromJson(br, GsonStub.class );
-				
-				for( Entry<String, StateStub>  entry: gstub.states.entrySet() ){
+				GsonStub gstub = new Gson().fromJson(br, GsonStub.class);
+
+				for (Entry<String, StateStub> entry : gstub.states.entrySet()) {
 					State<Character> state;
-					if ( entry.getKey().equals("null") ){
+					if (entry.getKey().equals("null")) {
 						state = std.getGuard();
 					} else {
-						state = std.getState(Character.valueOf(entry.getKey().charAt(0)));
+						state = std.getState(Character.valueOf(entry.getKey()
+								.charAt(0)));
 					}
-					for ( Entry<String, Integer> transitions : entry.getValue().transitions.entrySet() ){
+					for (Entry<String, Integer> transitions : entry.getValue().transitions
+							.entrySet()) {
 						State<Character> tranny;
-						if ( transitions.getKey().equals("null") ){
+						if (transitions.getKey().equals("null")) {
 							tranny = std.getGuard();
 						} else {
-							tranny = std.getState(Character.valueOf(transitions.getKey().charAt(0)));
+							tranny = std.getState(Character.valueOf(transitions
+									.getKey().charAt(0)));
 						}
-						
-						state.addTransition(tranny.getValue(), transitions.getValue());
+
+						state.addTransition(tranny.getValue(),
+								transitions.getValue());
 					}
 				}
 			}
@@ -163,7 +164,9 @@ public class markov {
 			if (endNode) {
 				generator = new EndTagGenerator<Character>(std);
 			} else {
-				double sd = ((double) sumOfSqr - (double) (sum * sum) / (double) n) / (double) (n - 1);
+				double sd = ((double) sumOfSqr - (double) (sum * sum)
+						/ (double) n)
+						/ (double) (n - 1);
 				double mean = (double) sum / (double) n;
 				log(String.format("mean: %.4f sd: %.4f", mean, sd));
 				NormalDistributionImpl dist = new NormalDistributionImpl(mean,

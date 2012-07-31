@@ -24,9 +24,9 @@ import com.google.gson.annotations.Expose;
 public class State<T> {
 
 	private T value;
-	
+
 	public int transitionCount = 0;
-	
+
 	@Expose
 	public HashMap<T, Integer> transitions = new HashMap<T, Integer>();
 
@@ -42,7 +42,7 @@ public class State<T> {
 		transitions.put(state, Integer.valueOf(i + 1));
 		transitionCount++;
 	}
-	
+
 	public void addTransition(T state, int count) {
 		Integer i = Integer.valueOf(count);
 		transitions.put(state, i);
@@ -53,12 +53,12 @@ public class State<T> {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		String orig;
-		if( value == null ){
+		if (value == null) {
 			orig = "START";
 		} else {
 			orig = value.toString();
 		}
-		for ( Entry<T, Integer> entry: transitions.entrySet() ) {
+		for (Entry<T, Integer> entry : transitions.entrySet()) {
 			T state = entry.getKey();
 			String end;
 			if (state != null) {
@@ -66,31 +66,26 @@ public class State<T> {
 			} else {
 				end = "END";
 			}
-			sb.append(String.format("%s -> %s [label = \"%.4f\"];\n", orig, end, ((float)entry.getValue() / (float)transitionCount)  ));
+			sb.append(String.format("%s -> %s [label = \"%.4f\"];\n", orig,
+					end, ((float) entry.getValue() / (float) transitionCount)));
 		}
 		return sb.toString();
 	}
 
 	public State<T> removeGuards(T guard) {
 		State<T> state = new State<T>(value);
-		
-		for ( Entry<T, Integer> entry : transitions.entrySet() ){
-			if ( entry.getKey() != guard ){
+
+		for (Entry<T, Integer> entry : transitions.entrySet()) {
+			if (entry.getKey() != guard) {
 				state.transitions.put(entry.getKey(), entry.getValue());
 				state.transitionCount += entry.getValue();
 			}
 		}
-		
+
 		return state;
 	}
-	
+
 	public T getValue() {
 		return value;
 	}
 }
-
-
-
-
-
-
