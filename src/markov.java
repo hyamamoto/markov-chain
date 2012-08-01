@@ -15,8 +15,6 @@
  */
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
@@ -48,12 +46,12 @@ public class markov {
 	public static void main(String[] args) {
 
 		// hack: eclipse don't support IO redirection worth a shit
-		 try {
-		 System.setIn(new FileInputStream("./json"));
-		 } catch (FileNotFoundException e1) {
-		 // TODO Auto-generated catch block
-		 e1.printStackTrace();
-		 }
+		// try {
+		// System.setIn(new FileInputStream("./json"));
+		// } catch (FileNotFoundException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
 
 		boolean graphMode = false;
 		boolean jsonMode = false;
@@ -151,7 +149,11 @@ public class markov {
 				}
 			}
 			if (graphMode) {
-				System.out.println(std.toString());
+				if (endNode) {
+					System.out.println(std.toString());
+				} else {
+					System.out.println(std.removeEndGuards().toString());
+				}
 				return;
 			}
 			if (jsonMode) {

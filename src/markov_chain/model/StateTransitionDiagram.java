@@ -59,6 +59,7 @@ public class StateTransitionDiagram<T> {
 			std.states.put(entry.getKey(),
 					entry.getValue().removeGuards(guard.getValue()));
 		}
+		std.guard = std.getState(guard.getValue());
 
 		return std;
 	}
