@@ -1,0 +1,2 @@
+requires commons-math-2.2.jar download from http://commons.apache.org/math/download_math.cgi
+requires gson-2.2.2.jar download from http://code.google.com/p/google-gson/downloads/list
