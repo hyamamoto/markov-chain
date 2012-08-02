@@ -36,7 +36,7 @@ Usage: markov [OPTION]
 		outputs debug information on stderr
 
 If no -e, it uses the normal distribution of the trained input to determine chain length.
-If no -j, -g or, -c, if will continuously output chains until stopped.
+If no -j, -g or, -c, will continuously output chains until stopped.
 If no -J, data on stdin is processed as a training corpus.
 ```
 ## Contributing
