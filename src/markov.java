@@ -38,6 +38,7 @@ import com.google.gson.GsonBuilder;
 
 public class markov {
 
+	private static final String HELP = "Usage: markov [OPTION]\n\n  -c[K]\n\t\tgenerate K lines of output\n  -e\n\t\tinclude an 'end' symbol when training sequences. if an 'end' is\n\t\tencountered during generation it will terminate the current chain\n\t\tand start a new one\n  -g\n\t\toutputs state transition diagram in Graphviz compliant notation\n  -h\n\t\tprints this message\n  -J\n\t\tstdin is to be parsed as json not as a training corpus\n  -j\n\t\toutputs state transition diagram as json\n  -v\n\t\toutputs debug information on stderr\n\nIf no -e, it uses the normal distribution of the trained input to determine chain length.\nIf no -j, -g or, -c, if will continuously output chains until stopped.\nIf no -J, data on stdin is processed as a training corpus.\n";
 	static boolean verbose = false;
 
 	/**
@@ -66,11 +67,15 @@ public class markov {
 
 		for (String s : args) {
 
-			if (!s.matches("^-[vegjJ]*(c[0-9]*)?$")) {
+			if (!s.matches("^-[vegjJh]*(c[0-9]*)?$")) {
 				System.out.println("invalid argument");
 				return;
 			}
 
+			if (s.matches("^-.*h.*")) {
+				System.out.println(HELP);
+				return;
+			}
 			if (s.matches("^-.*v.*")) {
 				verbose = true;
 				log("verbose mode");
@@ -94,6 +99,16 @@ public class markov {
 			if (s.matches("^-.*c[0-9]*$")) {
 				log("counted output mode");
 				count = Integer.parseInt(s.replaceAll("^-.*c", ""));
+			}
+			
+			boolean error = (graphMode == true && jsonMode == true);
+			if ( !error ){
+				error = ( count > -1 ) && (graphMode == true || jsonMode == true) ;
+			}
+			
+			if ( error ){
+				System.err.println("[error] switches j, g and, c are mutualy exclusive.");
+				return;
 			}
 
 		}
